@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xsi:schemaLocation="http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+
+	<!-- Create durable Queue for service -->
+	<rabbit:queue id="queue1" name="test-queue1" durable="true">
+		<rabbit:queue-arguments>
+			<entry key="x-max-priority">
+				<value type="java.lang.Integer">5</value>
+			</entry>
+		</rabbit:queue-arguments>
+	</rabbit:queue>
+
+	<rabbit:queue id="queue2" name="test-queue2" durable="true">
+		<rabbit:queue-arguments>
+			<entry key="x-max-priority">
+				<value type="java.lang.Integer">10</value>
+			</entry>
+		</rabbit:queue-arguments>
+	</rabbit:queue>
+
+	<!-- create eventExchange and bind eventTopicQueue with event.* to the EVENT_EXCHANGE -->
+	<rabbit:topic-exchange id="eventExchange" name="EVENT_EXCHANGE">
+		<rabbit:bindings>
+			<rabbit:binding queue="queue1" pattern="q1" />
+			<rabbit:binding queue="queue2" pattern="q2" />
+		</rabbit:bindings>
+	</rabbit:topic-exchange>
+
+	<!-- instantiate Listener -->
+	<bean id="eventListener" class="com.samsoft.amqp.AMQPMessageListener" />
+
+	<!-- glue the listener and eventTopicQueue to the container -->
+	<rabbit:listener-container
+		connection-factory="connectionFactory" acknowledge="auto">
+		<rabbit:listener ref="eventListener" queues="queue1,queue2" />
+	</rabbit:listener-container>
+</beans>
