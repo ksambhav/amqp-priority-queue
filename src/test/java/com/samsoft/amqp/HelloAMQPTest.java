@@ -36,7 +36,7 @@ public class HelloAMQPTest {
 	@Before
 	public void init() throws IOException {
 		factory = new ConnectionFactory();
-		factory.setHost("127.0.0.1");
+		factory.setHost("billing-dev02.demo.hcentive.com");
 		factory.setUsername("guest");
 		factory.setPassword("guest");
 		connection = factory.newConnection();
